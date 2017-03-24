@@ -6,7 +6,7 @@ Stochastic Neural Networks for Hierarchical Reinforcement Learning (snn4hrl) as 
 To reproduce the results, you should first have [rllab](https://github.com/rllab/rllab) and Mujoco v1.31 configured. Then, run the following commands in the root folder of `rllab`:
 
 ```bash
-git submodule add -f git@github.com:florensacc/snn4hrl.git sandbox/snn4hrl
+git submodule add -f https://github.com/florensacc/snn4hrl.git sandbox/snn4hrl
 touch sandbox/__init__.py
 ```
 
