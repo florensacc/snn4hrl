@@ -27,7 +27,7 @@ from rllab.policies.base import StochasticPolicy
 from rllab.spaces import Box
 from sandbox.snn4hrl.core.lasagne_layers import BilinearIntegrationLayer, CropLayer
 from sandbox.snn4hrl.distributions.categorical import Categorical_oneAxis as Categorical
-from sandbox.rocky.snn.distributions.bernoulli import Bernoulli
+from rllab.distributions.bernoulli import Bernoulli
 
 
 class GaussianMLPPolicy_snn_hier(StochasticPolicy, LasagnePowered, Serializable):  # also inherits form Parametrized

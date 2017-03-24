@@ -37,7 +37,7 @@ aws_config = dict(
     # security_group_ids=ALL_REGION_AWS_SECURITY_GROUP_IDS[subnet[:-1]],
 )
 
-exp_dir = 'data_upload/egoSnake64-snn/'
+exp_dir = 'data/local/egoSnake-snn/'
 for dir in os.listdir(exp_dir):
     if 'Figure' not in dir and os.path.isfile(os.path.join(exp_dir, dir, 'params.pkl')):
         pkl_path = os.path.join(exp_dir, dir, 'params.pkl')

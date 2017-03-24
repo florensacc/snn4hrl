@@ -20,10 +20,10 @@ from rllab.misc import logger
 from rllab.misc import ext
 from rllab.misc import autoargs
 from rllab.distributions.diagonal_gaussian import DiagonalGaussian
-
+from rllab.distributions.bernoulli import Bernoulli
 # from rllab.distributions.categorical import Categorical
+
 from sandbox.snn4hrl.distributions.categorical import Categorical_oneAxis as Categorical
-from sandbox.rocky.snn.distributions.bernoulli import Bernoulli
 
 
 class GaussianMLPPolicy_snn(StochasticPolicy, LasagnePowered, Serializable):

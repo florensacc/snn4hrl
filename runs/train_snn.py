@@ -3,7 +3,7 @@ from rllab.envs.normalized_env import normalize
 from rllab.misc.instrument import stub, run_experiment_lite
 from sandbox.snn4hrl.algos.trpo_snn import TRPO_snn
 from sandbox.snn4hrl.bonus_evaluators.grid_bonus_evaluator import GridBonusEvaluator
-from sandbox.snn4hrl.envs.mujoco.swimmer_env import SwimmerEnv
+from sandbox.snn4hrl.envs.mujoco.snake_env import SnakeEnv
 from sandbox.snn4hrl.policies.snn_mlp_policy import GaussianMLPPolicy_snn
 from sandbox.snn4hrl.regressors.latent_regressor import Latent_regressor
 
@@ -24,7 +24,7 @@ noisify_coef = 0        # noise injected int the state while fitting/predicting 
 reward_regressor_mi = 0         # bonus associated to the MI computed with the regressor
 
 # choose your environment. For later hierarchization, choose ego_obs=True
-env = normalize(SwimmerEnv(ego_obs=True))
+env = normalize(SnakeEnv(ego_obs=True))
 
 policy = GaussianMLPPolicy_snn(
     env_spec=env.spec,
@@ -83,7 +83,7 @@ algo = TRPO_snn(
 )
 
 for s in range(10, 110, 10):  # [10, 20, 30, 40, 50]:
-    exp_prefix = 'egoSwimmer-snn'
+    exp_prefix = 'egoSnake-snn'
     exp_name = exp_prefix + '_{}MI_{}grid_{}latCat_bil_{:04d}'.format(
         ''.join(str(snn_H_bonus).split('.')), mesh_density,
         latent_dim, s)

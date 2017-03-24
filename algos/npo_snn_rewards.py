@@ -166,6 +166,8 @@ class BatchSampler_snn(BatchSampler):
         )
         real_samples["importance_weights"] = np.ones_like(real_samples["advantages"])
 
+        return real_samples
+
     def log_diagnostics(self, paths):
         for b_eval in self.bonus_evaluator:
             b_eval.log_diagnostics(paths)
