@@ -75,6 +75,6 @@ class SwimmerEnv(MujocoEnv, Serializable):
             np.linalg.norm(path["env_infos"]["com"][-1] - path["env_infos"]["com"][0])
             for path in paths
             ]
-        logger.record_tabular_misc_stat('Progress', progs, 'front')
+        logger.record_tabular_misc_stat('Progress', progs)
         self.plot_visitations(paths, visit_prefix=prefix)
 
