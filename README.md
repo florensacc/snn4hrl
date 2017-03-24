@@ -1,4 +1,5 @@
-# How to run snn4hrl
+
+# How to run `snn4hrl`
 
 Stochastic Neural Networks for Hierarchical Reinforcement Learning (snn4hrl) as presented at ICLR by *Carlos Florensa, Yan Duan, Pieter Abbeel* (https://openreview.net/forum?id=B1oK8aoxe&noteId=B1oK8aoxe)
 
