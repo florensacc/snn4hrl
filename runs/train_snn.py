@@ -67,8 +67,6 @@ algo = TRPO_snn(
     self_normalize=True,
     log_individual_latents=True,
     log_deterministic=True,
-    # hallucinator=PriorHallucinator(env_spec=env.spec, policy=policy,
-    #                                n_hallucinate_samples=n_samples),
     latent_regressor=latent_regressor,
     reward_regressor_mi=reward_regressor_mi,
     bonus_evaluator=bonus_evaluators,
