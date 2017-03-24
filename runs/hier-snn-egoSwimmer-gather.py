@@ -1,10 +1,9 @@
 """
-SnakeGather: find good size to compare agains baseline
+SwimmerGather: find good size to compare agains baseline
 """
 
 # imports -----------------------------------------------------
 import math
-import os
 
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.config_personal import *
@@ -19,23 +18,7 @@ stub(globals())
 
 # exp setup --------------------------------------------------------
 mode = "local"
-ec2_instance = "c4.4xlarge"
-# subnets =[
-#     "us-west-1b"
-# ]
-# subnet = "us-west-1b"
-info_instance = INSTANCE_TYPE_INFO[ec2_instance]
-n_parallel = int(info_instance['vCPU']/2.)
-spot_price = info_instance['price']
-
-# for subnet in subnets:
-aws_config = dict(
-    # image_id=AWS_IMAGE_ID,
-    instance_type=ec2_instance,
-    # key_name=ALL_REGION_AWS_KEY_NAMES[subnet[:-1]],
-    spot_price=str(spot_price),
-    # security_group_ids=ALL_REGION_AWS_SECURITY_GROUP_IDS[subnet[:-1]],
-)
+n_parallel = 4
 
 exp_dir = 'data/local/egoSwimmer-snn/'
 for dir in os.listdir(exp_dir):
@@ -89,7 +72,6 @@ for dir in os.listdir(exp_dir):
                         stub_method_call=algo.train(),
                         mode=mode,
                         use_cloudpickle=False,
-                        aws_config=aws_config,
                         pre_commands=['pip install --upgrade pip',
                                       'pip install --upgrade theano',
                                       ],
@@ -97,14 +79,8 @@ for dir in os.listdir(exp_dir):
                         n_parallel=n_parallel,
                         # Only keep the snapshot parameters for the last iteration
                         snapshot_mode="last",
-                        # Specifies the seed for the experiment. If this is not provided, a random seed
-                        # will be used
                         seed=s,
-                        # plot=True,
                         # Save to data/local/exp_prefix/exp_name/
                         exp_prefix=exp_prefix,
                         exp_name=exp_name,
-                        sync_s3_pkl=True,  # for sync the pkl file also during the training
-                        sync_s3_png=True,
-                        terminate_machine=True,  # dangerous to have False!
                     )

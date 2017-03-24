@@ -96,7 +96,7 @@ for s in range(10, 110, 10):  # [10, 20, 30, 40, 50]:
                       'pip install --upgrade theano',
                       ],
         # Number of parallel workers for sampling
-        n_parallel=1,
+        n_parallel=4,
         # Only keep the snapshot parameters for the last iteration
         snapshot_mode="last",
         # Specifies the seed for the experiment. If this is not provided, a random seed
