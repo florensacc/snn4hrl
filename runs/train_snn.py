@@ -83,7 +83,7 @@ algo = TRPO_snn(
 )
 
 for s in range(10, 110, 10):  # [10, 20, 30, 40, 50]:
-    exp_prefix = 'egoSnake-snn'
+    exp_prefix = 'egoSwimmer-snn'
     exp_name = exp_prefix + '_{}MI_{}grid_{}latCat_bil_{:04d}'.format(
         ''.join(str(snn_H_bonus).split('.')), mesh_density,
         latent_dim, s)
