@@ -11,7 +11,7 @@ from rllab.envs.normalized_env import normalize
 from rllab.misc.instrument import stub, run_experiment_lite
 from sandbox.snn4hrl.algos.trpo_snn import TRPO_snn
 from sandbox.snn4hrl.envs.hierarchized_snn_env import hierarchize_snn
-from sandbox.snn4hrl.envs.mujoco.gather.snake_gather_env import SnakeGatherEnv
+from sandbox.snn4hrl.envs.mujoco.gather.swimmer_gather_env import SwimmerGatherEnv
 from sandbox.snn4hrl.policies.categorical_mlp_policy import CategoricalMLPPolicy
 
 stub(globals())
@@ -29,8 +29,8 @@ for dir in os.listdir(exp_dir):
         for time_step_agg in [10, 50, 100]:
 
             for activity_range in [6, 10, 15]:
-                inner_env = normalize(SnakeGatherEnv(activity_range=activity_range, sensor_range=activity_range,
-                                                     sensor_span=math.pi * 2, ego_obs=True))
+                inner_env = normalize(SwimmerGatherEnv(activity_range=activity_range, sensor_range=activity_range,
+                                                       sensor_span=math.pi * 2, ego_obs=True))
                 env = hierarchize_snn(inner_env, time_steps_agg=time_step_agg, pkl_path=pkl_path,
                                       # animate=True,
                                       )
