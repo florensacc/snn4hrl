@@ -53,7 +53,7 @@ for dir in os.listdir(exp_dir):
                     # reward_coef=reward_coef,
                     # bonus_evaluator=bonus_evaluators,
                     # reward_coef_bonus=reward_coef_bonus,
-                    batch_size=5e5 / time_step_agg,
+                    batch_size=5e3 / time_step_agg,
                     whole_paths=True,
                     max_path_length=5e3 / time_step_agg * activity_range / 6.,  # correct for larger envs
                     n_itr=2000,
