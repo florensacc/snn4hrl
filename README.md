@@ -12,6 +12,6 @@ touch sandbox/__init__.py
 ```
 
 Then you can do the following:
-- Train a SNN for the Snake environment via `python sandbox/snn4hrl/runs/train_snn.py`
-- Look at the visitation plot including the visitations of every latent code in `data/local/egoSnake-snn/`
-- Train a hierarchical policy on top of that SNN via `python sandbox/snn4hrl/runs/hier-snn-egoSnake-gather.py`
+- Train a SNN for the Swimmer environment via `python sandbox/snn4hrl/runs/train_snn.py`
+- Look at the visitation plot including the visitations of every latent code in `data/local/egoSwimmer-snn/`
+- Train a hierarchical policy on top of that SNN via `python sandbox/snn4hrl/runs/hier-snn-egoSwimmer-gather.py`
