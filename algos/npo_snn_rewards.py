@@ -155,35 +155,20 @@ class NPO_snn(NPO):
             log_individual_latents=False,  # to log the progress of each individual latent
             log_deterministic=False,  # log the performance of the policy with std=0 (for each latent separate)
             log_hierarchy=False,
-            L2_ub=1e6, # possible modifications of the objective function with KL or L2 divergences between latents!
-            KL_ub=1e6,
-            reward_coef_l2=0,
-            reward_coef_kl=0,
-            reward_regressor_mi=0,   # kwargs to the sampler (that also processes)
-            reward_coef_bonus=None,
             bonus_evaluator=None,
+            reward_coef_bonus=None,
             latent_regressor=None,
-            logged_MI=None,  # a list of tuples specifying the (obs,actions) that are regressed to find the latents
-            hallucinator=None,
-            n_hallu=0,
+            reward_regressor_mi=0,   # kwargs to the sampler (that also processes)
             switch_lat_every=0,
             **kwargs):
         # some logging
         self.log_individual_latents = log_individual_latents
         self.log_deterministic = log_deterministic
         self.log_hierarchy = log_hierarchy
-        # bonus that are differentiable through
-        self.reward_coef_l2 = reward_coef_l2
-        self.L2_ub = L2_ub
-        self.reward_coef_kl = reward_coef_kl
-        self.KL_ub = KL_ub
 
         sampler_cls = BatchSampler_snn
         sampler_args = {'switch_lat_every': switch_lat_every,
-                        'hallucinator': hallucinator,
-                        'n_hallu': n_hallu,
                         'latent_regressor': latent_regressor,
-                        'logged_MI': logged_MI,
                         'bonus_evaluator': bonus_evaluator,
                         'reward_coef_bonus': reward_coef_bonus,
                         'reward_regressor_mi': reward_regressor_mi,
@@ -203,22 +188,21 @@ class NPO_snn(NPO):
             'action',
             extra_dims=1 + is_recurrent,
         )
-        importance_weights = TT.vector('importance_weights')  # for weighting the hallucinations
-        ##
+
         latent_var = self.policy.latent_space.new_tensor_variable(
             'latents',
             extra_dims=1 + is_recurrent,
         )
-        ##
+
         advantage_var = ext.new_tensor(
             'advantage',
             ndim=1 + is_recurrent,
             dtype=theano.config.floatX
         )
-        dist = self.policy.distribution  ### this can still be the dist P(a|s,__h__)
+        dist = self.policy.distribution  # this can still be the dist P(a|s,__h__)
         old_dist_info_vars = {
             k: ext.new_tensor(
-                'old_%s' % k,  ##define tensors old_mean and old_log_std
+                'old_%s' % k,  # define tensors old_mean and old_log_std
                 ndim=2 + is_recurrent,
                 dtype=theano.config.floatX
             ) for k in dist.dist_info_keys
@@ -230,7 +214,6 @@ class NPO_snn(NPO):
         else:
             valid_var = None
 
-        ##CF
         dist_info_vars = self.policy.dist_info_sym(obs_var, latent_var)
 
         kl = dist.kl_sym(old_dist_info_vars, dist_info_vars)
@@ -239,81 +222,17 @@ class NPO_snn(NPO):
             mean_kl = TT.sum(kl * valid_var) / TT.sum(valid_var)
             surr_loss = - TT.sum(lr * advantage_var * valid_var) / TT.sum(valid_var)
         else:
-            mean_kl = TT.mean(kl * importance_weights)
-            surr_loss = - TT.mean(lr * advantage_var * importance_weights)
-
-        # # now we compute the kl with respect to all other possible latents:
-        # list_all_latent_vars = []
-        # for lat in range(self.policy.latent_dim):
-        #     lat_shared_var = theano.shared(np.expand_dims(special.to_onehot(lat, self.policy.latent_dim), axis=0),
-        #                                    name='latent_' + str(lat))
-        #     list_all_latent_vars.append(lat_shared_var)
-        #
-        # list_dist_info_vars = []
-        # all_l2 = []
-        # list_l2 = []
-        # all_kls = []
-        # list_kls = []
-        # for lat_var in list_all_latent_vars:
-        #     expanded_lat_var = TT.tile(lat_var, [obs_var.shape[0], 1])
-        #     list_dist_info_vars.append(self.policy.dist_info_sym(obs_var, expanded_lat_var))
-        #
-        # for dist_info_vars1 in list_dist_info_vars:
-        #     list_l2_var1 = []
-        #     list_kls_var1 = []
-        #     for dist_info_vars2 in list_dist_info_vars:  # I'm doing the L2 without the sqrt!!
-        #         list_l2_var1.append(TT.mean(TT.sqrt(TT.sum((dist_info_vars1['mean'] - dist_info_vars2['mean']) ** 2, axis=-1))))
-        #         list_kls_var1.append(dist.kl_sym(dist_info_vars1, dist_info_vars2))
-        #     all_l2.append(TT.stack(list_l2_var1))  # this is all the kls --> debug where it blows up!
-        #     list_l2.append(TT.mean(TT.clip(list_l2_var1, 0, self.L2_ub)))
-        #     all_kls.append(TT.stack(list_kls_var1))  # this is all the kls --> debug where it blows up!
-        #     list_kls.append(TT.mean(TT.clip(list_kls_var1, 0, self.KL_ub)))
-        #
-        # if all_l2:  # if there was any latent:
-        #     all_l2_stack = TT.stack(all_l2, axis=0)
-        #     mean_clip_intra_l2 = TT.mean(list_l2)
-        #
-        #     self._mean_clip_intra_l2 = ext.compile_function(
-        #         inputs=[obs_var],  # If you want to clip with the loss, you need to add here all input_list!!!
-        #         outputs=[mean_clip_intra_l2]
-        #     )
-        #
-        #     self._all_l2 = ext.compile_function(
-        #         inputs=[obs_var],
-        #         outputs=[all_l2_stack],
-        #     )
-        #
-        # if all_kls:
-        #     all_kls_stack = TT.stack(all_kls, axis=0)
-        #     mean_clip_intra_kl = TT.mean(list_kls)
-        #
-        #     self._mean_clip_intra_kl = ext.compile_function(
-        #         inputs=[obs_var],  # If you want to clip with the loss, you need to add here all input_list!!!
-        #         outputs=[mean_clip_intra_kl]
-        #     )
-        #
-        #     self._all_kls = ext.compile_function(
-        #         inputs=[obs_var],
-        #         outputs=[all_kls_stack],
-        #     )
-        #
-        # if self.reward_coef_kl and self.reward_coef_l2:
-        #     loss = surr_loss - self.reward_coef_kl * mean_clip_intra_kl - self.reward_coef_l2 * mean_clip_intra_l2
-        # elif self.reward_coef_kl:
-        #     loss = surr_loss - self.reward_coef_kl * mean_clip_intra_kl
-        # elif self.reward_coef_l2:
-        #     loss = surr_loss - self.reward_coef_l2 * mean_clip_intra_l2
+            mean_kl = TT.mean(kl)
+            surr_loss = - TT.mean(lr * advantage_var)
 
         loss = surr_loss
 
-        input_list = [  ##these are sym var. the inputs in optimize_policy have to be in same order!
+        input_list = [  # these are sym var. the inputs in optimize_policy have to be in same order!
                          obs_var,
                          action_var,
                          advantage_var,
-                         importance_weights,
-                         ##CF
                          latent_var,
-                     ] + old_dist_info_vars_list  ##provide old mean and var, for the new states as they were sampled from it!
+                     ] + old_dist_info_vars_list  # provide old mean and var, for the new states as they were sampled from it!
         if is_recurrent:
             input_list.append(valid_var)
 
@@ -328,18 +247,17 @@ class NPO_snn(NPO):
 
     @overrides
     def optimize_policy(self, itr,
-                        samples_data):  ###make that samples_data comes with latents: see train in batch_polopt
-        all_input_values = tuple(ext.extract(  ### it will be in agent_infos!!! under key "latents"
+                        samples_data):  # make that samples_data comes with latents: see train in batch_polopt
+        all_input_values = tuple(ext.extract(  # it will be in agent_infos!!! under key "latents"
             samples_data,
-            "observations", "actions", "advantages", "importance_weights"
+            "observations", "actions", "advantages"
         ))
         agent_infos = samples_data["agent_infos"]
-        ##CF
         all_input_values += (agent_infos[
                                  "latents"],)  # latents has already been processed and is the concat of all latents, but keeps key "latents"
         info_list = [agent_infos[k] for k in
-                     self.policy.distribution.dist_info_keys]  ##these are the mean and var used at rollout, corresponding to
-        all_input_values += tuple(info_list)  # old_dist_info_vars_list as symbolic var
+                     self.policy.distribution.dist_info_keys]  # these are the mean and var used at rollout, corresponding to
+        all_input_values += tuple(info_list)                   # old_dist_info_vars_list as symbolic var
         if self.policy.recurrent:
             all_input_values += (samples_data["valids"],)
 
@@ -365,23 +283,10 @@ class NPO_snn(NPO):
 
         if self.policy.latent_dim:
 
-            # # extra logging
-            # mean_clip_intra_kl = np.mean([self._mean_clip_intra_kl(path['observations']) for path in paths])
-            # logger.record_tabular('mean_clip_intra_kl', mean_clip_intra_kl)
-
-            # all_kls = [self._all_kls(path['observations']) for path in paths]
-
-            # mean_clip_intra_l2 = np.mean([self._mean_clip_intra_l2(path['observations']) for path in paths])
-            # logger.record_tabular('mean_clip_intra_l2', mean_clip_intra_l2)
-
-            # all_l2 = [self._all_l2(path['observations']) for path in paths]
-            # print('table of mean l2:\n', np.mean(all_l2, axis=0))
-
             if self.log_individual_latents and not self.policy.resample:  # this is only valid for finite discrete latents!!
                 all_latent_avg_returns = []
                 clustered_by_latents = collections.OrderedDict()  # this could be done within the distribution to be more general, but ugly
                 for lat_key in range(self.policy.latent_dim):
-                    # lat = from_index(i, self.policy.latent_dim)
                     clustered_by_latents[lat_key] = []
                 for path in paths:
                     lat = path['agent_infos']['latents'][0]
