@@ -17,8 +17,8 @@ mesh_density = 5  # for the discretization of the x-y space
 snn_H_bonus = 0.05  # coef of the MI bonus
 
 # extra arguments, not used in the paper
-switch_lat_every = 100  # switch latents during the pre-training
-virtual_reset = True
+switch_lat_every = 0  # switch latents during the pre-training
+virtual_reset = False
 # Latent regressor (to avoid using the GridBonus evaluator and its discretization)
 noisify_coef = 0        # noise injected int the state while fitting/predicting latents
 reward_regressor_mi = 0         # bonus associated to the MI computed with the regressor
