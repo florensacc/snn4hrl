@@ -23,13 +23,10 @@ class BatchSampler_snn(BatchSampler):
     """
     def __init__(self,
                  *args,  # this collects algo, passing it to BatchSampler in the super __init__
-                 reward_regressor_mi=0,  # this is for the regressor bonus, not the grid
-                 reward_coef_bonus=None,  # this is the total bonus from the bonus evaluator. it's a LIST
                  bonus_evaluator=None,  # list of bonus evals
-                 latent_regressor=None,
-                 logged_MI=None,  # a list of tuples specifying the (obs,actions) that are regressed to find the latents
-                 hallucinator=None,
-                 n_hallu=0,
+                 reward_coef_bonus=None,  # this is the total bonus from the bonus evaluator. it's a LIST
+                 latent_regressor=None,  # Latent_regressor object for MI. Provides logging AND bonus if needed
+                 reward_regressor_mi=0,  # this is for the regressor bonus, not the grid
                  self_normalize=False,  # this is for the hallucinated samples importance weight
                  switch_lat_every=0,
                  **kwargs
@@ -39,41 +36,8 @@ class BatchSampler_snn(BatchSampler):
         self.reward_coef_bonus = reward_coef_bonus if reward_coef_bonus else [0] * len(self.bonus_evaluator)
         self.reward_regressor_mi = reward_regressor_mi
         self.latent_regressor = latent_regressor
-        self.logged_MI = logged_MI  # a list of tuples specifying the (obs,actions) that are regressed to find the latents
-        self.hallucinator = hallucinator
-        self.n_hallu = n_hallu
         self.self_normalize = self_normalize
         self.switch_lat_every = switch_lat_every
-
-        # see what are the MI that want to be logged (it has to be done after initializing the super to have self.env)
-        self.logged_MI = logged_MI if logged_MI else []
-        if self.logged_MI == 'all_individual':
-            self.logged_MI = []
-            for o in range(self.algo.env.spec.observation_space.flat_dim):
-                self.logged_MI.append(([o], []))
-            for a in range(self.algo.env.spec.action_space.flat_dim):
-                self.logged_MI.append(([], [a]))
-        self.other_regressors = []
-        if isinstance(self.latent_regressor, Latent_regressor):  # check that there is a latent_regressor. there isn't if latent_dim=0.
-            for reg_dict in self.logged_MI:  # this is poorly done, should fuse better the 2 dicts
-                regressor_args = self.latent_regressor.regressor_args
-                regressor_args['name'] = 'latent_reg_obs{}_act{}'.format(reg_dict['obs_regressed'],
-                                                                         reg_dict['act_regressed'])
-                extra_regressor_args = {
-                    'env_spec': self.latent_regressor.env_spec,
-                    'policy': self.latent_regressor.policy,
-                    'recurrent': reg_dict['recurrent'],
-                    'predict_all': self.latent_regressor.predict_all,
-                    'obs_regressed': self.latent_regressor.obs_regressed,
-                    'act_regressed': self.latent_regressor.act_regressed,
-                    'use_only_sign': self.latent_regressor.use_only_sign,
-                    # 'optimizer': self.latent_regressor.optimizer,
-                    'regressor_args': self.latent_regressor.regressor_args,
-                }
-                for key, value in reg_dict.items():
-                    extra_regressor_args[key] = value
-                temp_lat_reg = Latent_regressor(**extra_regressor_args)
-                self.other_regressors.append(temp_lat_reg)
 
     def _worker_collect_one_path_snn(self, G, max_path_length, switch_lat_every=0, scope=None):
         G = parallel_sampler._get_scoped_G(G, scope)
@@ -175,11 +139,6 @@ class BatchSampler_snn(BatchSampler):
         if isinstance(self.latent_regressor, Latent_regressor):
             with logger.prefix(' Latent regressor logging | '):
                 self.latent_regressor.log_diagnostics(paths)
-        # log the MI with other obs and action
-        for i, lat_reg in enumerate(self.other_regressors):
-            with logger.prefix(' Extra latent regressor {} | '.format(i)):
-                lat_reg.fit(paths)
-                lat_reg.log_diagnostics(paths)
 
 
 class NPO_snn(NPO):
