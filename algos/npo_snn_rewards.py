@@ -21,6 +21,7 @@ class BatchSampler_snn(BatchSampler):
     Allows giving bonus for MI and other bonus_evaluators, hallucinate if needed (not used in the paper)
     and switching latent every certain number of time-steps.
     """
+
     def __init__(self,
                  *args,  # this collects algo, passing it to BatchSampler in the super __init__
                  bonus_evaluator=None,  # list of bonus evals
@@ -158,7 +159,7 @@ class NPO_snn(NPO):
             bonus_evaluator=None,
             reward_coef_bonus=None,
             latent_regressor=None,
-            reward_regressor_mi=0,   # kwargs to the sampler (that also processes)
+            reward_regressor_mi=0,  # kwargs to the sampler (that also processes)
             switch_lat_every=0,
             **kwargs):
         # some logging
@@ -257,7 +258,7 @@ class NPO_snn(NPO):
                                  "latents"],)  # latents has already been processed and is the concat of all latents, but keeps key "latents"
         info_list = [agent_infos[k] for k in
                      self.policy.distribution.dist_info_keys]  # these are the mean and var used at rollout, corresponding to
-        all_input_values += tuple(info_list)                   # old_dist_info_vars_list as symbolic var
+        all_input_values += tuple(info_list)  # old_dist_info_vars_list as symbolic var
         if self.policy.recurrent:
             all_input_values += (samples_data["valids"],)
 
@@ -322,7 +323,7 @@ class NPO_snn(NPO):
                         completed_in_paths += 1
                         for t in range(1, 50):
                             path = rollout(self.env, self.policy, max_path_length=10, animated=False,
-                                                      reset_start_rollout=False)
+                                           reset_start_rollout=False)
                             if len(path['rewards']) < 10:
                                 break
                             completed_in_paths += 1
