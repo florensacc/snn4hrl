@@ -3,7 +3,7 @@
 
 Stochastic Neural Networks for Hierarchical Reinforcement Learning (snn4hrl) as presented at ICLR by *Carlos Florensa, Yan Duan, Pieter Abbeel* (https://openreview.net/forum?id=B1oK8aoxe&noteId=B1oK8aoxe)
 
-[Checkout the videos!](http://bit.ly/snn4hrl-videos).
+[Checkout the videos!](http://bit.ly/snn4hrl-videos)
 
 To reproduce the results, you should first have [rllab](https://github.com/rllab/rllab) and Mujoco v1.31 configured. Then, run the following commands in the root folder of `rllab`:
 
