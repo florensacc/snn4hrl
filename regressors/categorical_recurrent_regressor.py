@@ -11,7 +11,7 @@ from rllab.optimizers.lbfgs_optimizer import LbfgsOptimizer
 from rllab.optimizers.penalty_lbfgs_optimizer import PenaltyLbfgsOptimizer
 from rllab.core.network import GRUNetwork
 from rllab.distributions.categorical import Categorical
-# from sandbox.carlos_snn.distributions.categorical import Categorical_oneAxis as Categorical
+# from sandbox_snn.distributions.categorical import Categorical_oneAxis as Categorical
 
 NONE = list()
 

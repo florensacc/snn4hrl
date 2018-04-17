@@ -1,13 +1,13 @@
 import sys
-from sandbox.carlos.snn4hrl.algos.trpo_snn import TRPO_snn
-from sandbox.carlos.snn4hrl.bonus_evaluators.grid_bonus_evaluator import GridBonusEvaluator
-from sandbox.carlos.snn4hrl.policies.snn_mlp_policy import GaussianMLPPolicy_snn
-from sandbox.carlos.snn4hrl.regressors.latent_regressor import Latent_regressor
+from sandbox.snn4hrl.algos.trpo_snn import TRPO_snn
+from sandbox.snn4hrl.bonus_evaluators.grid_bonus_evaluator import GridBonusEvaluator
+from sandbox.snn4hrl.policies.snn_mlp_policy import GaussianMLPPolicy_snn
+from sandbox.snn4hrl.regressors.latent_regressor import Latent_regressor
 
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.normalized_env import normalize
 from rllab.misc.instrument import stub, run_experiment_lite
-from sandbox.carlos.snn4hrl.envs.mujoco.snake_env import SnakeEnv
+from sandbox.snn4hrl.envs.mujoco.snake_env import SnakeEnv
 
 stub(globals())
 

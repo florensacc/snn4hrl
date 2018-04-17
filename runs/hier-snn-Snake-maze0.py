@@ -10,15 +10,15 @@ import sys
 import datetime
 import dateutil.tz
 
-from sandbox.carlos.snn4hrl.envs.hierarchized_snn_env import hierarchize_snn
-from sandbox.carlos.snn4hrl.policies.categorical_mlp_policy import CategoricalMLPPolicy
+from sandbox.snn4hrl.envs.hierarchized_snn_env import hierarchize_snn
+from sandbox.snn4hrl.policies.categorical_mlp_policy import CategoricalMLPPolicy
 
 from rllab.algos.trpo import TRPO
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.config_personal import *
 from rllab.envs.normalized_env import normalize
 from rllab.misc.instrument import stub, run_experiment_lite
-from sandbox.carlos.snn4hrl.envs.mujoco.maze.snake_maze_env import SnakeMazeEnv
+from sandbox.snn4hrl.envs.mujoco.maze.snake_maze_env import SnakeMazeEnv
 
 stub(globals())
 
